@@ -3,7 +3,7 @@
 // User opens email → clicks link → comes back → taps "I verified it"
 // Firebase confirms verification → enter app.
 // ──────────────────────────────────────────────────────────────────────────────
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/constants.dart';
@@ -121,7 +121,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
               const SizedBox(height: 12),
 
               Text(
-                'We sent a verification link to\n${AuthService._fbUser?.email ?? 'your email'}',
+                'We sent a verification link to\n${FirebaseAuth.instance.currentUser?.email ?? 'your email'}',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[500], fontSize: 14, height: 1.6),
               ),
