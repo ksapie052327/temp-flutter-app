@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "000000000000",
-    "project_id": "ksapie-app",
-    "storage_bucket": "ksapie-app.appspot.com"
+    "project_number": "217008648672",
+    "project_id": "ksapie-2318",
+    "storage_bucket": "ksapie-2318.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "mobilesdk_app_id": "1:217008648672:android:b5ee3b000d9704a1b4bb85",
         "android_client_info": {
           "package_name": "com.ksapie.ksapie"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "REPLACE_WITH_YOUR_FIREBASE_API_KEY"
+          "current_key": "AIzaSyCBBRoVvlV8y4UzHPfyK4DmVHcGjTnqNeI"
         }
       ],
       "services": {
