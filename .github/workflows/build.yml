@@ -30,12 +30,11 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build APK (Flutter safe mode)
+      - name: Build APK (stable method)
         run: |
-         flutter config --no-analytics
-         flutter doctor
-         flutter pub get
-         flutter build apk --release --no-tree-shake-icons --verbose
+         cd android
+         chmod +x gradlew || true
+         ./gradlew assembleRelease --stacktrace
 
       - name: List build outputs (debug)
         run: ls -R build/app/outputs || true
@@ -44,4 +43,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: build/app/outputs/flutter-apk/*.apk
+          path: android/app/build/outputs/apk/release/*.apk
