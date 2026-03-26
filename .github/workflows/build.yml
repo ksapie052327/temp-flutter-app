@@ -30,11 +30,10 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build APK
+      - name: Build APK (Gradle direct)
         run: |
-         export CI=true
-         export FLUTTER_WEB_AUTO_DETECT=false
-         flutter build apk --release --no-tree-shake-icons
+         cd android
+         ./gradlew assembleRelease
 
       - name: List build outputs (debug)
         run: ls -R build/app/outputs || true
@@ -43,4 +42,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: build/app/outputs/flutter-apk/*.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
