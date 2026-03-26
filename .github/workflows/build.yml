@@ -31,7 +31,10 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release --no-tree-shake-icons
+        run: |
+         export CI=true
+         export FLUTTER_WEB_AUTO_DETECT=false
+         flutter build apk --release --no-tree-shake-icons
 
       - name: List build outputs (debug)
         run: ls -R build/app/outputs || true
