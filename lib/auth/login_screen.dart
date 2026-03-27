@@ -56,6 +56,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (!mounted) return;
 
+        setState(() => _loading = false);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const ChatHomeScreen()),
@@ -132,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 48),
 
-              const Text('Welcome back',
+              const Text('Welcome Chukabooz',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 22,
