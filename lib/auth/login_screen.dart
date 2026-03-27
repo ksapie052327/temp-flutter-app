@@ -4,6 +4,7 @@ import 'auth_service.dart';
 import 'register_screen.dart';
 import 'verify_email_screen.dart';
 import '../screens/chat_home_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,57 +27,60 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  Future<void> _login() async {
-    if (_emailCtrl.text.trim().isEmpty || _passCtrl.text.isEmpty) {
-      setState(() => _error = 'Please fill all fields');
-      return;
-    }
-
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-
-    final error = await AuthService.login(
-      email: _emailCtrl.text,
-      password: _passCtrl.text,
-    );
-
-    if (!mounted) return;
-
-    if (error != null) {
-      setState(() {
-        _error = error;
-        _loading = false;
-      });
-      return;
-    }
-
-    // Reload to get fresh verification status
-    await AuthService.reloadUser();
-
-    if (!mounted) return;
-
-    // Check email verified
-    if (!AuthService.isEmailVerified) {
-      setState(() => _loading = false);
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const VerifyEmailScreen()),
-      );
-      return;
-    }
-
-    // All good
-    await AuthService.setPresence(isOnline: true);
-    if (!mounted) return;
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const ChatHomeScreen()),
-    );
+ Future<void> _login() async {
+  if (_emailCtrl.text.trim().isEmpty || _passCtrl.text.isEmpty) {
+    setState(() => _error = 'Please fill all fields');
+    return;
   }
 
+  setState(() {
+    _loading = true;
+    _error = null;
+  });
+
+  try {
+    final cred = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: _emailCtrl.text.trim(),
+      password: _passCtrl.text.trim(),
+    );
+
+    final user = cred.user;
+
+    if (user != null) {
+      await user.reload();
+
+      if (!mounted) return;
+
+      if (user.emailVerified) {
+        await AuthService.setPresence(isOnline: true);
+
+        if (!mounted) return;
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const ChatHomeScreen()),
+        );
+      } else {
+        setState(() => _loading = false);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const VerifyEmailScreen()),
+        );
+      }
+    }
+  } on FirebaseAuthException catch (e) {
+    setState(() {
+      _error = e.message ?? "Login failed";
+      _loading = false;
+    });
+  } catch (e) {
+    setState(() {
+      _error = "Something went wrong";
+      _loading = false;
+    });
+  }
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
