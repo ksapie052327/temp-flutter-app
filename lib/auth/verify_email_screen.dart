@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import '../core/constants.dart';
 import 'auth_service.dart';
 import '../screens/chat_home_screen.dart';
-
+import 'dart:async';
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
 
@@ -24,12 +24,21 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   String? _message;
   int _resendCooldown = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    // Auto-check every 3 seconds
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) => _autoCheck());
-  }
+ @override
+void initState() {
+  super.initState();
+
+  _timer = Timer.periodic(Duration(seconds: 3), (timer) async {
+    await FirebaseAuth.instance.currentUser?.reload();
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null && user.emailVerified) {
+      timer.cancel();
+
+      Navigator.pushReplacementNamed(context, '/home');
+    }
+  });
+}
 
   @override
   void dispose() {
