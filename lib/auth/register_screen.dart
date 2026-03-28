@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../core/constants.dart';
 import 'auth_service.dart';
 import 'verify_email_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -27,40 +28,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _register() async {
-    final name = _nameCtrl.text.trim();
-    final email = _emailCtrl.text.trim();
-    final pass = _passCtrl.text;
+  final name = _nameCtrl.text.trim();
+  final email = _emailCtrl.text.trim();
+  final pass = _passCtrl.text;
 
-    if (name.isEmpty || email.isEmpty || pass.isEmpty) {
-      setState(() => _error = 'Please fill all fields');
-      return;
-    }
-    if (pass.length < 6) {
-      setState(() => _error = 'Password must be at least 6 characters');
-      return;
-    }
+  if (name.isEmpty || email.isEmpty || pass.isEmpty) {
+    setState(() => _error = 'Please fill all fields');
+    return;
+  }
+  if (pass.length < 6) {
+    setState(() => _error = 'Password must be at least 6 characters');
+    return;
+  }
 
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
+  setState(() {
+    _loading = true;
+    _error = null;
+  });
 
-    final error = await AuthService.register(
+  try {
+    final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: email,
       password: pass,
-      name: name,
     );
 
-    if (!mounted) return;
+    final user = cred.user;
 
-    if (error != null) {
-      setState(() {
-        _error = error;
-        _loading = false;
-      });
-      return;
+    if (user != null) {
+      await user.updateDisplayName(name);
+      await user.sendEmailVerification();
+
+      if (!mounted) return;
+
+      setState(() => _loading = false);
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const VerifyEmailScreen()),
+      );
     }
-
+  } on FirebaseAuthException catch (e) {
+    setState(() {
+      _error = e.message ?? "Signup failed";
+      _loading = false;
+    });
+  } catch (e) {
+    setState(() {
+      _error = "Something went wrong";
+      _loading = false;
+    });
+  }
+}
     // Go to verify email screen
     Navigator.pushReplacement(
       context,
