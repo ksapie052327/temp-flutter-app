@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../core/constants.dart';
-import 'auth_service.dart';
-import 'verify_email_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../core/constants.dart';
+import 'verify_email_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -15,6 +14,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
+
   bool _loading = false;
   bool _obscure = true;
   String? _error;
@@ -28,62 +28,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _register() async {
-  final name = _nameCtrl.text.trim();
-  final email = _emailCtrl.text.trim();
-  final pass = _passCtrl.text;
+    final name = _nameCtrl.text.trim();
+    final email = _emailCtrl.text.trim();
+    final pass = _passCtrl.text;
 
-  if (name.isEmpty || email.isEmpty || pass.isEmpty) {
-    setState(() => _error = 'Please fill all fields');
-    return;
-  }
-  if (pass.length < 6) {
-    setState(() => _error = 'Password must be at least 6 characters');
-    return;
-  }
-
-  setState(() {
-    _loading = true;
-    _error = null;
-  });
-
-  try {
-    final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: email,
-      password: pass,
-    );
-
-    final user = cred.user;
-
-    if (user != null) {
-      await user.updateDisplayName(name);
-      await user.sendEmailVerification();
-
-      if (!mounted) return;
-
-      setState(() => _loading = false);
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const VerifyEmailScreen()),
-      );
+    if (name.isEmpty || email.isEmpty || pass.isEmpty) {
+      setState(() => _error = 'Please fill all fields');
+      return;
     }
-  } on FirebaseAuthException catch (e) {
+
+    if (pass.length < 6) {
+      setState(() => _error = 'Password must be at least 6 characters');
+      return;
+    }
+
     setState(() {
-      _error = e.message ?? "Signup failed";
-      _loading = false;
+      _loading = true;
+      _error = null;
     });
-  } catch (e) {
-    setState(() {
-      _error = "Something went wrong";
-      _loading = false;
-    });
-  }
-}
-    // Go to verify email screen
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const VerifyEmailScreen()),
-    );
+
+    try {
+      final cred = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: pass,
+      );
+
+      final user = cred.user;
+
+      if (user != null) {
+        await user.updateDisplayName(name);
+        await user.sendEmailVerification();
+
+        if (!mounted) return;
+
+        setState(() => _loading = false);
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const VerifyEmailScreen()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _error = e.message ?? "Signup failed";
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _error = "Something went wrong";
+        _loading = false;
+      });
+    }
   }
 
   @override
@@ -96,18 +91,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Join KSAPIE',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold)),
+              const Text(
+                'Join KSAPIE',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 4),
               Text(
                 'A verification link will be sent to your email',
-                style:
-                    TextStyle(color: Colors.grey[500], fontSize: 13),
+                style: TextStyle(color: Colors.grey[500], fontSize: 13),
               ),
-
               const SizedBox(height: 28),
 
               if (_error != null) ...[
@@ -124,10 +120,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: Colors.redAccent, size: 18),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text(_error!,
-                            style: const TextStyle(
-                                color: Colors.redAccent,
-                                fontSize: 13)),
+                        child: Text(
+                          _error!,
+                          style: const TextStyle(
+                            color: Colors.redAccent,
+                            fontSize: 13,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -141,8 +140,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(
                   hintText: 'Your display name',
-                  prefixIcon: Icon(Icons.person_outline,
-                      color: Colors.grey),
+                  prefixIcon: Icon(Icons.person_outline, color: Colors.grey),
                 ),
               ),
 
@@ -154,8 +152,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
                   hintText: 'Email address',
-                  prefixIcon: Icon(Icons.email_outlined,
-                      color: Colors.grey),
+                  prefixIcon: Icon(Icons.email_outlined, color: Colors.grey),
                 ),
               ),
 
@@ -167,15 +164,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
                   hintText: 'Password (min 6 characters)',
-                  prefixIcon: const Icon(Icons.lock_outline,
-                      color: Colors.grey),
+                  prefixIcon:
+                      const Icon(Icons.lock_outline, color: Colors.grey),
                   suffixIcon: IconButton(
                     icon: Icon(
-                        _obscure
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                        color: Colors.grey,
-                        size: 20),
+                      _obscure ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey,
+                      size: 20,
+                    ),
                     onPressed: () =>
                         setState(() => _obscure = !_obscure),
                   ),
@@ -193,7 +189,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           width: 20,
                           height: 20,
                           child: CircularProgressIndicator(
-                              strokeWidth: 2, color: kBlack))
+                            strokeWidth: 2,
+                            color: kBlack,
+                          ),
+                        )
                       : const Text('Create Account'),
                 ),
               ),
@@ -203,9 +202,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               Center(
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text('Already have an account? Login',
-                      style: TextStyle(
-                          color: Colors.grey[500], fontSize: 13)),
+                  child: Text(
+                    'Already have an account? Login',
+                    style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                  ),
                 ),
               ),
             ],
